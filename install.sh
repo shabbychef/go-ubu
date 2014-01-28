@@ -66,7 +66,7 @@ if $INSTALL_BASIC ; then
 	sudo apt-get install -y git tig subversion mercurial
 	sudo apt-get install -y openssh-client openssh-server ntp curl lynx
 	sudo apt-get install -y screen tmux
-	sudo apt-get install -y nmap
+	sudo apt-get install -y nmap resolvconf
 	sudo apt-get install -y nfs-common smbclient fuse fuse-utils hdparm cryptsetup cifs-utils samba 
 	sudo apt-get install -y unzip bzip2 gzip zip p7zip-full
 	sudo apt-get install -y lsof htop iotop
@@ -224,6 +224,7 @@ RPROFILE_END
 	sudo R --slave -e 'install.packages(c("functional"))'
 
 	sudo R --slave -e 'install.packages(c("cluster","Hmisc"))'
+	sudo R --slave -e 'install.packages(c("shiny"))'
 
 	# ugh java to get xlsx
 	sudo apt-get install -y openjdk-7-jdk
