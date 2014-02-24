@@ -38,6 +38,7 @@ if $SETUP_REPOS ; then
 	sudo add-apt-repository -y ppa:staticfloat/julia-deps
 	sudo add-apt-repository -y ppa:google/musicmanager 
 	sudo add-apt-repository -y ppa:texlive-backports/ppa
+	sudo add-apt-repository -y ppa:arnaud-hartmann/glances-stable
 
 	# for R:
 	if $INSTALL_R ; then
@@ -69,7 +70,7 @@ if $INSTALL_BASIC ; then
 	sudo apt-get install -y nmap resolvconf
 	sudo apt-get install -y nfs-common smbclient fuse fuse-utils hdparm cryptsetup cifs-utils samba 
 	sudo apt-get install -y unzip bzip2 gzip zip p7zip-full
-	sudo apt-get install -y lsof htop iotop
+	sudo apt-get install -y lsof htop iotop glances
 	sudo apt-get install -y rsnapshot
 	sudo apt-get install -y tilda yakuake
 	sudo apt-get install -y gkrellm gkrellmd 
@@ -214,7 +215,8 @@ RPROFILE_END
 	sudo R --slave -e 'install.packages(c("bitops","RCurl"))'
 	sudo R --slave -e 'install.packages(c("roxygen2","knitr"))'
 	sudo R --slave -e 'install.packages(c("quantmod","TTR"))'
-	sudo R --slave -e 'install.packages(c("txtplot","sandwich"))'
+	sudo R --slave -e 'install.packages(c("txtplot"))'
+	sudo R --slave -e 'install.packages(c("ks","sandwich"))'
 	sudo R --slave -e 'install.packages(c("matrixcalc","RMTstat"))'
 	sudo R --slave -e 'install.packages(c("fBasics","fOptions"))'
 	sudo R --slave -e 'install.packages(c("testthat"))'
@@ -256,6 +258,12 @@ RPROFILE_END
 
 	sudo R --slave -e 'update.packages(ask=FALSE)'
 
+	# whee. colored output.
+	# see http://www.lepem.ufc.br/jaa/colorout.html
+	# see also http://musicallyut.blogspot.com/2012/07/colors-in-r-console.html
+	wget -P /tmp http://www.lepem.ufc.br/jaa/colorout_1.0-2.tar.gz
+	sudo R CMD INSTALL /tmp/colorout*.tar.gz
+	rm /tmp/colorout*.tar.gz
 
 	# get rstudio?
 	echo "go to http://www.rstudio.com/ide/download/desktop"
