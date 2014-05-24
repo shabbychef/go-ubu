@@ -249,7 +249,7 @@ RPROFILE_END
 
 
 	# needed for stats-cookbook:
-	sudo R --slave -e 'install.packages(c("reshape"))'
+	sudo R --slave -e 'install.packages(c("reshape2"))'
 	sudo R --slave -e 'install.packages(c("MCMCpack"))'
 	sudo R --slave -e 'install.packages(c("VGAM"))'
 
