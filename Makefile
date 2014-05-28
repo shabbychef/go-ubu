@@ -57,11 +57,13 @@ run : cid
 
 cid : $(BASENAME).cid
 
+nocid : $(BASENAME).nocid
+
 %.cid : %.img
 	$(DOCKER) $(DOCKER_DAEMON_FLAGS) run $(DOCKER_RUN_FLAGS) -t \
 		-v /etc/localtime:/etc/localtime:ro \
 		-v /tmp/docker_msf:/tmp/msf:rw \
-		-d --cidfile=$@ --name=$* \
+		-i --rm --cidfile=$@ --name=$* \
 		$(USERNAME)/$*
 	$(DOCKER) ps | grep -e "$(USERNAME)/$*"
 
@@ -72,7 +74,7 @@ cid : $(BASENAME).cid
 	$(DOCKER) $(DOCKER_DAEMON_FLAGS) run $(DOCKER_RUN_FLAGS) -t \
 		-v /etc/localtime:/etc/localtime:ro \
 		-v /tmp/docker_msf:/tmp/msf:rw \
-		-d --name=$* \
+		-i --rm --name=$* \
 		$(USERNAME)/$*
 	$(DOCKER) ps | grep -e "$(USERNAME)/$*"
 
@@ -109,6 +111,7 @@ suggestions :
 	@echo make img
 	@echo make cid
 	@echo make run
+	@echo sleep `jot -r 1 2 57` && git commit -a -m "working on stuff" && git push origin master
 
 clean :
 	-rm *.img

@@ -18,7 +18,8 @@ FROM ubuntu:12.04
 
 MAINTAINER Steven E. Pav, shabbychef@gmail.com
 
-#ENV DOCKFILE_REFRESHED_AT 2014.03.21
+# this can be hell, or it can be used to force rebuilds...
+ENV DOCKFILE_REFRESHED_AT 2014.05.26
 # this is just hell: turn it off, or do not check in so much.
 #ENV DOCKFILE_SVN_ID '$Id: Dockerfile 41706 2014-05-15 19:46:42Z steven $'
 
@@ -53,31 +54,47 @@ RUN (DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
 
 RUN DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
   aptitude install -y -q --no-gui -f -V \
-  wget less perl sudo \
+  wget curl less perl sudo \
 	apt-file \
-	adduser bash-completion cron fdupes xclip \
-	cpp g++ gcc m4 make athena-jot dos2unix \
-	vim vim-conque vim-scripts exuberant-ctags \
+	adduser cpp g++ gcc m4 make git 
+
+RUN DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
+  aptitude install -y -q --no-gui -f -V \
+	bash-completion fdupes \
+  athena-jot dos2unix \
 	git tig subversion mercurial \
-	openssh-client openssh-server ntp curl lynx \
-	screen tmux \
+	openssh-client openssh-server \
+  wget curl lynx \
+	screen tmux stow \
 	nmap cryptsetup \
 	unzip bzip2 gzip zip p7zip-full \
-	lsof htop iotop glances \
-	texlive texinfo qpdf lacheck chktex texlive-latex-extra \
-	texlive-full \
-	gnuplot hdf5-tools html2text \
-	imagemagick graphviz gqview \
+	lsof htop iotop glances 
+
+RUN DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
+  aptitude install -y -q --no-gui -f -V \
+	vim vim-python vim-conque vim-scripts 
+
+RUN DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
+  aptitude install -y -q --no-gui -f -V \
+	texlive-full texlive texlive-latex-extra 
+
+RUN DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
+  aptitude install -y -q --no-gui -f -V \
+	texinfo qpdf lacheck chktex \
 	evince okular okular-extra-backends geeqie pdfjam \
-	antiword \
+	imagemagick graphviz gqview \
+
+RUN DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
+  aptitude install -y -q --no-gui -f -V \
+	exuberant-ctags \
+	gnuplot hdf5-tools html2text antiword \
 	openjdk-7-jre openjdk-7-jdk \
 	libcurl4-gnutls-dev \
 	texlive-fonts-extra \
-	r-base littler \
+  r-base r-base-dev littler \
 	libmpfr-dev 
 
 RUN R --version
-
 
 RUN mkdir -p /etc/R
 
@@ -157,7 +174,25 @@ RUN R CMD INSTALL /tmp/colorout*.tar.gz
 
 WORKDIR /tmp
 ADD install.sh /tmp/
-#RUN bash /tmp/install.sh
+ENV SUSER spav
+RUN adduser --system --group --shell /bin/bash --home /home/$SUSER $SUSER
+RUN echo "spav:vegetable" | chpasswd
+RUN adduser $SUSER sudo
+
+ENV HOME /home/$SUSER
+# see http://brandon.invergo.net/news/2012-05-26-using-gnu-stow-to-manage-your-dotfiles.html
+# for using stow to generate dotfile configs
+ADD dotfiles/ /home/$SUSER/dotfiles/
+RUN chown -R $SUSER:$SUSER /home/$SUSER/dotfiles
+
+USER spav
+WORKDIR /home/spav/dotfiles
+RUN stow vim
+WORKDIR /home/spav/.vim
+RUN make all
+
+WORKDIR /home/spav/dotfiles
+RUN stow bash
 
 #####################################################
 # entry and cmd# FOLDUP
@@ -166,20 +201,21 @@ ADD install.sh /tmp/
 # image build. thus you probably should put VOLUME commands
 # after *all* RUN commands to avoid confusion: you cannot
 # interact with VOLUMES with RUN commands.
-VOLUME ["/tmp/name","/var/foo"]
+#VOLUME ["/tmp/name","/var/foo"]
 
 # why not?
-WORKDIR /tmp
-USER root
+WORKDIR /home/spav
+USER spav
+ENV HOSTNAME shabbycon
 
 # Expose ssh?
 #EXPOSE 22 
 
 # always use array syntax:
-ENTRYPOINT ["/usr/sbin/cron"]
+ENTRYPOINT ["/bin/bash"]
 
 # ENTRYPOINT and CMD are better together:
-CMD ["-f"]
+CMD ["-i"]
 # UNFOLD
 
 #for vim modeline: (do not edit)
