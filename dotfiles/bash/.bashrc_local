@@ -5,25 +5,17 @@
 
 ##################################################################
 # systemy stuff#FOLDUP
-export EMAIL='steven@cerebellumcapital.com'
+export EMAIL='root@localhost'
 #UNFOLD
 
 ##################################################################
 # where is everything located?#FOLDUP
-
-export MATLAB_ROOT='/opt/matlab/matlab_default'
-export TEXINPUTS=.:$HOME/sys/etc/tex:$HOME/work/math/TEX::
-export RSTUDIO_BIN=/usr/lib/rstudio/bin/rstudio
-export WAYBACK=/mnt/wayback
+#export TEXINPUTS=.:$HOME/sys/etc/tex:$HOME/work/math/TEX::
 #UNFOLD
 
 ##################################################################
 # etc#FOLDUP
 #for lam/mpi
-export LAMRSH ssh
-
-export PRINTER=brother
-
 export LYNX_CFG=~/.lynxrc
 #UNFOLD
 
@@ -39,7 +31,5 @@ VIMV=`vim --version | h -n 1 | perl -ane '$_ = $F[4];~s/\.//;print $_;w'`;
 export VIM="/usr/share/vim/vim$VIMV";
 unset VIMV
 export EDITOR=vim
-
-alias ppine='pine -passfile /home/spav/.pinetyc';
 
 # vim:ts=4:sw=2:tw=180:fdm=marker:fmr=FOLDUP,UNFOLD:cms=#%s:syn=sh:ft=sh:ai:si:cin:nu:fo=croql:cino=p0t0c5(0:
