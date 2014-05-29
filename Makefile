@@ -111,7 +111,7 @@ suggestions :
 	@echo make img
 	@echo make cid
 	@echo make run
-	@echo sleep `jot -r 1 2 57` && git commit -a -m "working on stuff" && git push origin master
+	@echo 'sleep `jot -r 1 2 57` && git commit -a -m "working on stuff" && git push origin master'
 
 clean :
 	-rm *.img

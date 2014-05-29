@@ -52,48 +52,52 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
 RUN (DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
 	apt-get update -qq && apt-get upgrade -y -qq)
 
-RUN DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-  aptitude install -y -q --no-gui -f -V \
-  wget curl less perl sudo \
-	apt-file \
-	adduser cpp g++ gcc m4 make git 
+ENV APTITUDE_GET aptitude install -y -q --no-gui -f -V
+ENV APT_GET apt-get install -y -qq
 
 RUN DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-  aptitude install -y -q --no-gui -f -V \
+  $APT_GET \
+  wget curl less perl sudo \
+	apt-file \
+	adduser cpp g++ gcc m4 make 
+
+RUN DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
+  $APT_GET \
 	bash-completion fdupes \
   athena-jot dos2unix \
 	git tig subversion mercurial \
 	openssh-client openssh-server \
   wget curl lynx \
-	screen tmux stow \
+	screen stow \
 	nmap cryptsetup \
 	unzip bzip2 gzip zip p7zip-full \
 	lsof htop iotop glances 
 
 RUN DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-  aptitude install -y -q --no-gui -f -V \
-	vim vim-python vim-conque vim-scripts 
+  $APT_GET \
+	exuberant-ctags vim vim-conque vim-scripts 
 
 RUN DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-  aptitude install -y -q --no-gui -f -V \
-	texlive-full texlive texlive-latex-extra 
-
-RUN DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-  aptitude install -y -q --no-gui -f -V \
+  $APT_GET \
 	texinfo qpdf lacheck chktex \
+	gnuplot hdf5-tools html2text antiword \
 	evince okular okular-extra-backends geeqie pdfjam \
 	imagemagick graphviz gqview \
+	texlive-fonts-extra texlive-full texlive texlive-latex-extra 
 
 RUN DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-  aptitude install -y -q --no-gui -f -V \
-	exuberant-ctags \
-	gnuplot hdf5-tools html2text antiword \
+  $APT_GET \
 	openjdk-7-jre openjdk-7-jdk \
 	libcurl4-gnutls-dev \
-	texlive-fonts-extra \
   r-base r-base-dev littler \
 	libmpfr-dev 
+# UNFOLD
 
+#####################################################
+# setup# FOLDUP
+
+# set up R# FOLDUP
+# make sure it installed first!
 RUN R --version
 
 RUN mkdir -p /etc/R
@@ -116,7 +120,7 @@ ENV R_USER root
 ENV R_PROFILE_USER /root/.Rprofile
 
 RUN DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-  aptitude install -y -q --no-gui -f -V \
+	$APT_GET \
   r-base r-base-dev littler \
   libcurl4-gnutls-dev \
   pandoc libpq-dev libmysqlclient-dev libx11-dev \
@@ -152,9 +156,8 @@ RUN (R --slave -e 'install.packages(c("zoo","digest","lattice","MASS"))' ;\
 
 RUN R CMD javareconf
 
-RUN (R --slave -e 'install.packages(c("reshape2"))' ;\
-	R --slave -e 'install.packages(c("MCMCpack"))' ;\
-	R --slave -e 'install.packages(c("VGAM"))' ;\
+RUN (R --slave -e 'install.packages(c("reshape2","pryr"))' ;\
+	R --slave -e 'install.packages(c("MCMCpack","VGAM","fortunes"))' ;\
 	R --slave -e 'install.packages(c("SharpeR","MarkowitzR"))')
 
 RUN R --slave -e 'update.packages(ask=FALSE)'
@@ -166,12 +169,9 @@ RUN R CMD INSTALL /tmp/colorout*.tar.gz
 ## see http://askubuntu.com/a/25614/41248
 #sudo sh -c "echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections"
 #sudo apt-get install -y -q ttf-mscorefonts-installer
-
 # UNFOLD
 
-#####################################################
-# setup
-
+# dotfile stuff# FOLDUP
 WORKDIR /tmp
 ADD install.sh /tmp/
 ENV SUSER spav
@@ -182,17 +182,21 @@ RUN adduser $SUSER sudo
 ENV HOME /home/$SUSER
 # see http://brandon.invergo.net/news/2012-05-26-using-gnu-stow-to-manage-your-dotfiles.html
 # for using stow to generate dotfile configs
-ADD dotfiles/ /home/$SUSER/dotfiles/
-RUN chown -R $SUSER:$SUSER /home/$SUSER/dotfiles
+ADD dotfiles/ /home/$SUSER/.dotfiles/
+RUN chown -R $SUSER:$SUSER /home/$SUSER/.dotfiles
 
 USER spav
-WORKDIR /home/spav/dotfiles
+WORKDIR /home/spav/.dotfiles
 RUN stow vim
 WORKDIR /home/spav/.vim
 RUN make all
 
-WORKDIR /home/spav/dotfiles
+WORKDIR /home/spav/.dotfiles
 RUN stow bash
+RUN stow R
+ENV R_PROFILE_USER /home/spav/.Rprofile
+# UNFOLD
+# UNFOLD
 
 #####################################################
 # entry and cmd# FOLDUP
