@@ -29,5 +29,19 @@ done
 
 shift $((OPTIND-1))
 
+# c.f. http://kvz.io/blog/2013/11/21/bash-best-practices/
+# and  http://fahdshariff.blogspot.com/2013/10/shell-scripting-best-practices.html
+
+declare -r -i port_num=8080
+
+processit() {
+	local -r in1="$1"; shift
+	local -r in2="$1"; shift
+}
+
+main() {
+
+}
+
 #for vim modeline: (do not edit)
 # vim:ts=2:sw=2:tw=79:fdm=marker:fmr=FOLDUP,UNFOLD:cms=#%s:syn=sh:ft=sh:ai:si:cin:nu:fo=croql:cino=p0t0c5(0:

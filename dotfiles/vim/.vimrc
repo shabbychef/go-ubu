@@ -23,6 +23,10 @@ set runtimepath=~/.vim,/usr/share/vim-conque,$VIMRUNTIME,~/.vim/after
 " * Mon Apr 01 2013 10:03:56 AM Steven E. Pav <steven@cerebellumcapital.com>
 " move to vundle instead
 " see http://www.charlietanksley.net/philtex/sane-vim-plugin-management/
+"
+"
+" git clone http://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+"
 set nocompatible
 filetype off  " required!
 
@@ -40,8 +44,14 @@ Bundle 'vcscommand.vim'
 Bundle 'svncommand.vim'
 Bundle 'taglist.vim'
 
+Bundle 'vim-orgmode'
+Bundle 'utl.vim'
+
 Bundle 'thinca/vim-template'
 " * Fri Feb 28 2014 04:43:27 PM Steven E. Pav <steven@cerebellumcapital.com>
+" to toggle indent guides, by default just type
+" ,ig
+" sweet. See https://github.com/nathanaelkane/vim-indent-guides
 Bundle "nathanaelkane/vim-indent-guides"
 " * Wed Mar 05 2014 09:28:59 AM Steven E. Pav <steven@cerebellumcapital.com>
 Bundle "ekalinin/Dockerfile.vim"
@@ -65,6 +75,9 @@ Bundle 'Gist.vim'
 "Bundle 'number-marks'
 
 filetype plugin indent on     " required!
+
+" now call 
+" BundleInstall!
 
 " my dealio
 "filetype plugin on
@@ -171,6 +184,7 @@ filetype plugin indent on     " required!
 " ===================================================================
   iab teh       the
   iab YDME <C-R>=strftime("* %a %b %d %Y Steven E. Pav <steven@cerebellumcapital.com>")<CR>
+  iab YDHMONLY <C-R>=strftime("%a %b %d %Y %X")<CR>
   iab YDHME <C-R>=strftime("* %a %b %d %Y %X Steven E. Pav <steven@cerebellumcapital.com>")<CR>
   iab SIGNIT <C-R>=strftime("* %a %b %d %Y %X Steven E. Pav <shabbychef@gmail.com>")<CR>
 	" adding the chomp part. fingers crossed.
@@ -336,7 +350,8 @@ map <C-F1> <nop>
 			 au!
 			 au BufNewFile *.m exe "source " . RCDIR .  "matlabrc.vim"
 			 " new way, via a fancy function using m4:
-			 au BufNewFile *.m call MatlabSkeleton()
+			 " forget this, let the template files do it instead.
+			 " au BufNewFile *.m call MatlabSkeleton()
 			 " old way;
 			 " au BufNewFile *.m 0r ~/crepo/blankheader.txt
 		 augroup END
@@ -450,23 +465,21 @@ let g:loaded_minibufexplorer = 1
 
 " 2FIX: deprecate ConqueFoo in favor of FooConque as is better
 " for tab complete
-	command! -complete=shellcmd ConqueMatlab call s:ExecuteInConqueTerm('screen -D -R -S matlab');
 	command! -complete=shellcmd MatlabConque call s:ExecuteInConqueTerm('screen -D -R -S matlab');
 	command! -complete=shellcmd CraplabConque call s:ExecuteInConqueTerm('screen -D -R -S craplab');
 	"command! -complete=shellcmd Matlabit call conque_term#open("screen -D -R -S matlab", ['split'])
 	
 	command! -complete=shellcmd BashConque call s:ExecuteInConqueTerm('screen -D -R -S ashell')
 	
-	command! -complete=shellcmd ConqueIPythonScreen call s:ExecuteInConqueTerm('screen -D -R -S ipython')
-	command! -complete=shellcmd ConqueIPython call s:ExecuteInConqueTerm('ipython')
+	"command! -complete=shellcmd ConqueIPythonScreen call s:ExecuteInConqueTerm('screen -D -R -S ipython')
+	"command! -complete=shellcmd ConqueIPython call s:ExecuteInConqueTerm('ipython')
 
-	command! -complete=shellcmd ConqueR call s:ExecuteInConqueTerm('screen -D -R -S r')
+	command! -complete=shellcmd BPythonConque call s:ExecuteInConqueTerm('bpython');
 	command! -complete=shellcmd RConque call s:ExecuteInConqueTerm('screen -D -R -S r')
-
-	command! -complete=shellcmd ConqueJulia call s:ExecuteInConqueTerm('screen -D -R -S julia')
 	command! -complete=shellcmd JuliaConque call s:ExecuteInConqueTerm('screen -D -R -S julia')
 
-	"command! -complete=shellcmd QooqueMatlab call s:ConqueTerm('screen -d -r matlab || screen -S matlab')
+	command! -complete=shellcmd -nargs=1 ScreenConque call s:ExecuteInConqueTerm('screen -D -R -S ' . <f-args>)
+
 	"command! -complete=shellcmd -nargs=+ Conque call s:ExecuteInConqueTerm(<q-args>)
 
 	"fun! CTMUX()
