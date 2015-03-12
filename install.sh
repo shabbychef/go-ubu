@@ -33,7 +33,7 @@ INSTALL_KDE=${INSTALL_KDE:-false}
 # add some more repositories:#FOLDUP
 if $SETUP_REPOS ; then
 	if ! [ -x "add-apt-repository" ]; then
-		sudo apt-get install software-properties-common
+		sudo apt-get install -y software-properties-common
 	fi
 	sudo add-apt-repository -y ppa:freenx-team
 	sudo add-apt-repository -y ppa:jtaylor/ipython-dev
