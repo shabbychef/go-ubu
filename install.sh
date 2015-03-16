@@ -206,58 +206,57 @@ local({
 })
 RPROFILE_END
 
-	# get devtools
-	sudo R --slave -e 'install.packages(c("devtools"))'
+rinstall() {
+	sudo /usr/share/doc/littler/examples/install2.r -r http://CRAN.rstudio.com/ $@
+}
+
+	# get devtools, drat
+	rinstall devtools drat
+
 	# update devtools
 	sudo r -l 'devtools' -e 'devtools::install_github("devtools",username="hadley")'
 
+	# update drat
+	sudo r -l 'drat' -e 'drat::add("eddelbuettel");update.packages(ask=FALSE)'
+
 	# needed for ggplot2 deps?
 	#sudo apt-get install -y r-cran-colorspace
-	sudo R --slave -e 'install.packages(c("zoo","digest","lattice","MASS"))'
-	sudo R --slave -e 'install.packages(c("xts","timeSeries"))'
-	sudo R --slave -e 'install.packages(c("bitops","RCurl"))'
-	sudo R --slave -e 'install.packages(c("roxygen2","knitr"))'
-	sudo R --slave -e 'install.packages(c("quantmod","TTR"))'
-	sudo R --slave -e 'install.packages(c("txtplot"))'
-	sudo R --slave -e 'install.packages(c("ks","sandwich"))'
-	sudo R --slave -e 'install.packages(c("matrixcalc","RMTstat"))'
-	sudo R --slave -e 'install.packages(c("fBasics","fOptions"))'
-	sudo R --slave -e 'install.packages(c("testthat"))'
-	sudo R --slave -e 'install.packages(c("Quandl"))'
-	sudo R --slave -e 'install.packages(c("gtools"))'
-	sudo R --slave -e 'install.packages(c("survey"))'
-	sudo R --slave -e 'install.packages(c("functional"))'
-
-	sudo R --slave -e 'install.packages(c("cluster","Hmisc"))'
-	sudo R --slave -e 'install.packages(c("shiny"))'
+	rinstall zoo digest lattice MASS \
+		xts timeSeries \
+		bitops RCurl \
+		roxygen2 knitr \
+		quantmod TTR \
+		txtplot \
+		ks sandwich \
+		matrixcalc RMTstat \
+		fBasics fOptions \
+		testthat \
+		Quandl \
+		gtools \
+		survey \
+		functional \
+		cluster Hmisc \
+		shiny
 
 	# ugh java to get xlsx
 	sudo apt-get install -y openjdk-7-jdk
 	sudo R CMD javareconf
-	sudo R --slave -e 'install.packages(c("rJava"))'
-	sudo R --slave -e 'install.packages(c("xlsx"))'
+	rinstall rJava xlsx
 
-	sudo R --slave -e 'install.packages(c("Rcpp"))'
-	sudo R --slave -e 'install.packages(c("ecp","nnet","car"))'
-	sudo R --slave -e 'install.packages(c("h5r"))'
-	sudo R --slave -e 'install.packages(c("googleVis"))'
-	sudo R --slave -e 'install.packages(c("quadprog","tseries"))'
-	sudo R --slave -e 'install.packages(c("fracdiff","forecast"))'
-
-
-	sudo R --slave -e 'install.packages(c("R.matlab"))'
-	sudo R --slave -e 'install.packages(c("survival","clinfun","saws","rankhazard","maxstat","coxrobust"))'
-	sudo R --slave -e 'install.packages(c("colorspace","plyr","ggplot2"))'
-	sudo R --slave -e 'install.packages(c("ggHorizon"))'
-
-
-	# needed for stats-cookbook:
-	sudo R --slave -e 'install.packages(c("reshape2"))'
-	sudo R --slave -e 'install.packages(c("MCMCpack"))'
-	sudo R --slave -e 'install.packages(c("VGAM"))'
+	rinstall Rcpp \
+		ecp nnet car \
+		h5r \
+		googleVis \
+		quadprog tseries \
+		fracdiff forecast \
+		R.matlab \
+		survival clinfun saws rankhazard maxstat coxrobust \
+		colorspace plyr ggplot2 \
+		ggHorizon \
+		reshape2 MCMCpack VGAM
 
 	# <hot shit gesture>
-	sudo R --slave -e 'install.packages(c("SharpeR"))'
+	rinstall SharpeR MarkowitzR sadists
 
 	sudo R --slave -e 'update.packages(ask=FALSE)'
 
