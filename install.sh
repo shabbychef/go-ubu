@@ -28,10 +28,14 @@ INSTALL_BASIC=${INSTALL_BASIC:-true}
 INSTALL_PYTHON=${INSTALL_PYTHON:-true}
 INSTALL_R=${INSTALL_R:-true}
 INSTALL_KDE=${INSTALL_KDE:-false}
+INSTALL_JULIA=${INSTALL_JULIA:-false}
 #UNFOLD
 
 # add some more repositories:#FOLDUP
 if $SETUP_REPOS ; then
+	if ! [ -x "add-apt-repository" ]; then
+		sudo apt-get install -y software-properties-common
+	fi
 	sudo add-apt-repository -y ppa:freenx-team
 	#sudo add-apt-repository -y ppa:jtaylor/ipython-dev
 	#sudo add-apt-repository -y ppa:pythonxy/pythonxy-devel
@@ -49,6 +53,11 @@ if $SETUP_REPOS ; then
 		echo '# need this to get latest and greatest R' | sudo tee -a /etc/apt/sources.list
 		echo "deb http://cran.cnr.berkeley.edu/bin/linux/ubuntu $MYUBUNTU/" | sudo tee -a /etc/apt/sources.list
 		sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
+		sudo add-apt-repository -y ppa:marutter/c2d4u
+	fi
+	if $INSTALL_JULIA ; then
+		sudo add-apt-repository -y ppa:staticfloat/julianightlies
+		sudo add-apt-repository -y ppa:staticfloat/julia-deps
 	fi
 fi
 #UNFOLD
@@ -62,7 +71,7 @@ fi
 # packages#FOLDUP
 if $INSTALL_BASIC ; then
 	# admin/linux
-	sudo apt-get install -y aptitude apt-file
+	sudo apt-get install -y aptitude apt-file wget
 	sudo apt-file update &
 	sudo apt-get install -y adduser bash-completion cron expect fdupes xclip
 	sudo apt-get install -y build-essential cpp g++ gcc m4 make athena-jot dos2unix
@@ -91,7 +100,7 @@ if $INSTALL_BASIC ; then
 	sudo apt-get install -y postfix
 	# etc
 	sudo apt-get install -y abiword gnumeric gnuplot hdf5-tools html2text 
-	sudo apt-get install -y gimp digikam imagemagick inkscape graphviz gqview
+	sudo apt-get install -y gimp digikam imagemagick inkscape graphviz geeqie
 	sudo apt-get install -y evince okular okular-extra-backends geeqie pdfjam
 	sudo apt-get install -y antiword
 	# ksnapshot much better
@@ -141,7 +150,10 @@ if $INSTALL_PYTHON ; then
 	sudo pip install -y --upgrade virtualenv
 	# now get the packages needed
 	# R
-	sudo pip install rpy2
+	if $INSTALL_R; then
+		sudo apt-get install -y r-base-core 
+		sudo pip install rpy2
+	fi
 	sudo apt-get install -y libhdf5-serial-dev
 	sudo pip install h5py
 	sudo pip install oct2py
@@ -179,10 +191,11 @@ if $INSTALL_R ; then
 	sudo apt-get install -y libcurl4-gnutls-dev
 	# need this for inconsolata.sty. I kid you not
 	sudo apt-get install -y texlive-fonts-extra
-	sudo apt-get install -y r-base littler
+	sudo apt-get install -y r-base-core littler
+	# devtools needs git2r which needs libssl
+	sudo apt-get install -y libssl-dev libxml2-dev
 
 	R --version
-
 
 	echo "see also: http://cran.rstudio.com/bin/linux/ubuntu/README.html"
 
@@ -202,70 +215,82 @@ local({
   r <- getOption("repos")
   r["CRAN"] <- "http://cran.r-project.org"
   options(repos = r)
+
+	if (require(drat)) {
+		drat::addRepo("eddelbuettel")
+		drat::addRepo("shabbychef")
+	}
 })
 RPROFILE_END
 
-	# get devtools
-	sudo R --slave -e 'install.packages(c("devtools"))'
+	# needed for install2.r
+	sudo r -e 'install.packages(c("docopt"))'
+
+rinstall() {
+	sudo r /usr/share/doc/littler/examples/install2.r -r http://CRAN.rstudio.com/ $@
+}
+
+	# get devtools, drat
+	rinstall devtools drat
+
 	# update devtools
-	sudo r -l 'devtools' -e 'devtools::install_github("devtools",username="hadley")'
+	sudo r -l 'devtools' -e 'devtools::install_github("hadley/devtools")'
+
+
+	# update drat
+	sudo r -l 'drat' -e 'drat::addRepo("eddelbuettel");update.packages(ask=FALSE)'
 
 	# needed for ggplot2 deps?
 	#sudo apt-get install -y r-cran-colorspace
-	sudo R --slave -e 'install.packages(c("zoo","digest","lattice","MASS"))'
-	sudo R --slave -e 'install.packages(c("xts","timeSeries"))'
-	sudo R --slave -e 'install.packages(c("bitops","RCurl"))'
-	sudo R --slave -e 'install.packages(c("roxygen2","knitr"))'
-	sudo R --slave -e 'install.packages(c("quantmod","TTR"))'
-	sudo R --slave -e 'install.packages(c("txtplot"))'
-	sudo R --slave -e 'install.packages(c("ks","sandwich"))'
-	sudo R --slave -e 'install.packages(c("matrixcalc","RMTstat"))'
-	sudo R --slave -e 'install.packages(c("fBasics","fOptions"))'
-	sudo R --slave -e 'install.packages(c("testthat"))'
-	sudo R --slave -e 'install.packages(c("Quandl"))'
-	sudo R --slave -e 'install.packages(c("gtools"))'
-	sudo R --slave -e 'install.packages(c("survey"))'
-	sudo R --slave -e 'install.packages(c("functional"))'
+	rinstall zoo digest lattice MASS \
+		xts timeSeries \
+		bitops RCurl \
+		roxygen2 knitr \
+		quantmod TTR \
+		txtplot \
+		ks sandwich \
+		matrixcalc RMTstat \
+		fBasics fOptions \
+		testthat \
+		Quandl \
+		gtools \
+		survey \
+		functional \
+		cluster Hmisc \
+		shiny 
 
-	sudo R --slave -e 'install.packages(c("cluster","Hmisc"))'
-	sudo R --slave -e 'install.packages(c("shiny"))'
+	sudo r -l 'devtools' -e 'devtools::install_github("rstudio/DT")'
 
 	# ugh java to get xlsx
 	sudo apt-get install -y openjdk-7-jdk
 	sudo R CMD javareconf
-	sudo R --slave -e 'install.packages(c("rJava"))'
-	sudo R --slave -e 'install.packages(c("xlsx"))'
+	rinstall rJava xlsx
 
-	sudo R --slave -e 'install.packages(c("Rcpp"))'
-	sudo R --slave -e 'install.packages(c("ecp","nnet","car"))'
-	sudo R --slave -e 'install.packages(c("h5r"))'
-	sudo R --slave -e 'install.packages(c("googleVis"))'
-	sudo R --slave -e 'install.packages(c("quadprog","tseries"))'
-	sudo R --slave -e 'install.packages(c("fracdiff","forecast"))'
-
-
-	sudo R --slave -e 'install.packages(c("R.matlab"))'
-	sudo R --slave -e 'install.packages(c("survival","clinfun","saws","rankhazard","maxstat","coxrobust"))'
-	sudo R --slave -e 'install.packages(c("colorspace","plyr","ggplot2"))'
-	sudo R --slave -e 'install.packages(c("ggHorizon"))'
-
-
-	# needed for stats-cookbook:
-	sudo R --slave -e 'install.packages(c("reshape2"))'
-	sudo R --slave -e 'install.packages(c("MCMCpack"))'
-	sudo R --slave -e 'install.packages(c("VGAM"))'
+	rinstall Rcpp \
+		ecp nnet car \
+		h5r \
+		googleVis \
+		quadprog tseries \
+		fracdiff forecast \
+		R.matlab \
+		survival clinfun saws rankhazard maxstat coxrobust \
+		colorspace plyr ggplot2 \
+		ggHorizon \
+		reshape2 MCMCpack VGAM
 
 	# <hot shit gesture>
-	sudo R --slave -e 'install.packages(c("SharpeR"))'
+	rinstall SharpeR MarkowitzR sadists
 
 	sudo R --slave -e 'update.packages(ask=FALSE)'
 
 	# whee. colored output.
 	# see http://www.lepem.ufc.br/jaa/colorout.html
 	# see also http://musicallyut.blogspot.com/2012/07/colors-in-r-console.html
-	wget -P /tmp http://www.lepem.ufc.br/jaa/colorout_1.0-2.tar.gz
-	sudo R CMD INSTALL /tmp/colorout*.tar.gz
-	rm /tmp/colorout*.tar.gz
+	#wget -P /tmp http://www.lepem.ufc.br/jaa/colorout_1.0-2.tar.gz
+	#sudo R CMD INSTALL /tmp/colorout*.tar.gz
+	#rm /tmp/colorout*.tar.gz
+	# this is in my drat now, so no worries:
+	rinstall colorout
 
 	# get rstudio?
 	echo "go to http://www.rstudio.com/ide/download/desktop"
@@ -273,6 +298,12 @@ RPROFILE_END
 	echo "sudo apt-get install -y libjpeg62"
 	echo "sudo dpkg -i file.deb"
 
+fi
+#UNFOLD
+
+# JULIA#FOLDUP
+if $INSTALL_JULIA ; then
+	sudo apt-get install -y julia
 fi
 #UNFOLD
 
