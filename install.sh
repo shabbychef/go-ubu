@@ -33,12 +33,15 @@ INSTALL_KDE=${INSTALL_KDE:-false}
 # add some more repositories:#FOLDUP
 if $SETUP_REPOS ; then
 	sudo add-apt-repository -y ppa:freenx-team
-	sudo add-apt-repository -y ppa:jtaylor/ipython-dev
-	sudo add-apt-repository -y ppa:pythonxy/pythonxy-devel
+	#sudo add-apt-repository -y ppa:jtaylor/ipython-dev
+	#sudo add-apt-repository -y ppa:pythonxy/pythonxy-devel
 	sudo add-apt-repository -y ppa:staticfloat/julia-deps
-	sudo add-apt-repository -y ppa:google/musicmanager 
+	#sudo add-apt-repository -y ppa:google/musicmanager 
 	sudo add-apt-repository -y ppa:texlive-backports/ppa
 	sudo add-apt-repository -y ppa:arnaud-hartmann/glances-stable
+
+	wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add - 
+	sudo sh -c 'echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
 
 	# for R:
 	if $INSTALL_R ; then
@@ -62,7 +65,7 @@ if $INSTALL_BASIC ; then
 	sudo apt-get install -y aptitude apt-file
 	sudo apt-file update &
 	sudo apt-get install -y adduser bash-completion cron expect fdupes xclip
-	sudo apt-get install -y cpp g++ gcc m4 make athena-jot dos2unix
+	sudo apt-get install -y build-essential cpp g++ gcc m4 make athena-jot dos2unix
 	sudo apt-get install -y vim vim-conque vim-gtk vim-scripts exuberant-ctags
 	sudo apt-get install -y git tig subversion mercurial
 	sudo apt-get install -y openssh-client openssh-server ntp curl lynx
@@ -87,9 +90,6 @@ if $INSTALL_BASIC ; then
 	# instead, try postfix?
 	sudo apt-get install -y postfix
 	# etc
-	sudo apt-get install -y texlive texinfo qpdf lacheck chktex texlive-latex-extra 
-	#sudo apt-get install -y texlive-generic-extra tex
-	sudo apt-get install -y texlive-full 
 	sudo apt-get install -y abiword gnumeric gnuplot hdf5-tools html2text 
 	sudo apt-get install -y gimp digikam imagemagick inkscape graphviz gqview
 	sudo apt-get install -y evince okular okular-extra-backends geeqie pdfjam
@@ -106,6 +106,8 @@ if $INSTALL_BASIC ; then
 	sudo apt-get install -y -q ttf-mscorefonts-installer
 	# fucking java
 	sudo apt-get install -y openjdk-7-jre
+	sudo apt-get install -y texlive texinfo qpdf lacheck chktex texlive-latex-extra texlive-full 
+	#sudo apt-get install -y texlive-generic-extra tex
 fi
 
 if $INSTALL_KDE ; then
