@@ -9,6 +9,7 @@
 #  INSTALL_PYTHON
 #  INSTALL_R
 #  INSTALL_KDE
+#  INSTALL_JULIA
 #
 # then
 #
@@ -18,6 +19,8 @@
 #
 # wget -q -O - http://remote.com/whatever | sudo bash
 #
+
+# todo: add docker?
 
 export MYUBUNTU=`lsb_release -cs`
 
@@ -36,10 +39,9 @@ if $SETUP_REPOS ; then
 	if ! [ -x "add-apt-repository" ]; then
 		sudo apt-get install -y software-properties-common
 	fi
-	sudo add-apt-repository -y ppa:freenx-team
+	#sudo add-apt-repository -y ppa:freenx-team
 	#sudo add-apt-repository -y ppa:jtaylor/ipython-dev
 	#sudo add-apt-repository -y ppa:pythonxy/pythonxy-devel
-	sudo add-apt-repository -y ppa:staticfloat/julia-deps
 	#sudo add-apt-repository -y ppa:google/musicmanager 
 	sudo add-apt-repository -y ppa:texlive-backports/ppa
 	sudo add-apt-repository -y ppa:arnaud-hartmann/glances-stable
@@ -80,17 +82,17 @@ if $INSTALL_BASIC ; then
 	sudo apt-get install -y openssh-client openssh-server ntp curl lynx
 	sudo apt-get install -y screen tmux
 	sudo apt-get install -y nmap resolvconf
-	sudo apt-get install -y nfs-common smbclient fuse fuse-utils hdparm cryptsetup cifs-utils samba 
+	sudo apt-get install -y nfs-common smbclient fuse fuse-utils hdparm cryptsetup ccrypt cifs-utils samba 
 	sudo apt-get install -y unzip bzip2 gzip zip p7zip-full
 	sudo apt-get install -y lsof htop iotop glances
 	sudo apt-get install -y rsnapshot
 	sudo apt-get install -y tilda yakuake
 	sudo apt-get install -y gkrellm gkrellmd 
 	# x and such
-	sudo apt-get install -y xorg xserver-xorg xserver-xorg-core xserver-xorg-input-all xserver-xorg-input-evdev xserver-xorg-input-mouse  
+	#sudo apt-get install -y xorg xserver-xorg xserver-xorg-core xserver-xorg-input-all xserver-xorg-input-evdev xserver-xorg-input-mouse  
 	# freenx
-	sudo apt-get install -y freenx freenx-server
-	sudo apt-get install -y nxagent nxclient nxnode nxserver 
+	#sudo apt-get install -y freenx freenx-server
+	#sudo apt-get install -y nxagent nxclient nxnode nxserver 
 	# mail;  suddenly a total pain in the ass.
 	sudo apt-get install -y mailx mailutils sendemail esmtp
 	# see https://help.ubuntu.com/12.04/installation-guide/powerpc/mail-setup.html
@@ -100,16 +102,16 @@ if $INSTALL_BASIC ; then
 	sudo apt-get install -y postfix
 	# etc
 	sudo apt-get install -y abiword gnumeric gnuplot hdf5-tools html2text 
-	sudo apt-get install -y gimp digikam imagemagick inkscape graphviz geeqie
+	#sudo apt-get install -y gimp digikam imagemagick inkscape graphviz geeqie
 	sudo apt-get install -y evince okular okular-extra-backends geeqie pdfjam
 	sudo apt-get install -y antiword
 	# ksnapshot much better
 	#sudo apt-get install -y shutter
 	#sudo apt-get install -y istanbul recordmydesktop
 	sudo apt-get install -y chromium-browser firefox flashplugin-installer 
-	sudo apt-get install -y exaile ubuntu-restricted-addons
-	sudo apt-get install -y mplayer vlc mencoder eject ripperx
-	sudo apt-get install -y gringotts
+	#sudo apt-get install -y exaile ubuntu-restricted-addons
+	#sudo apt-get install -y mplayer vlc mencoder eject ripperx
+	#sudo apt-get install -y gringotts
 	# see http://askubuntu.com/a/25614/41248
 	sudo sh -c "echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections"
 	sudo apt-get install -y -q ttf-mscorefonts-installer
@@ -224,7 +226,9 @@ local({
 RPROFILE_END
 
 	# needed for install2.r
-	sudo r -e 'install.packages(c("docopt"))'
+	# this does not work on a bare install...
+	#sudo r -e 'install.packages(c("docopt"))'
+	sudo R -e 'install.packages(c("docopt"))'
 
 rinstall() {
 	sudo r /usr/share/doc/littler/examples/install2.r -r http://CRAN.rstudio.com/ $@
@@ -238,7 +242,9 @@ rinstall() {
 
 
 	# update drat
-	sudo r -l 'drat' -e 'drat::addRepo("eddelbuettel");update.packages(ask=FALSE)'
+	# this also borked, apparently.
+	#sudo r -l 'drat' -e 'drat::addRepo("eddelbuettel");update.packages(ask=FALSE)'
+	sudo R --slave -e 'library(drat);drat::addRepo("eddelbuettel");update.packages(ask=FALSE)'
 
 	# needed for ggplot2 deps?
 	#sudo apt-get install -y r-cran-colorspace
@@ -276,7 +282,7 @@ rinstall() {
 		survival clinfun saws rankhazard maxstat coxrobust \
 		colorspace plyr ggplot2 \
 		ggHorizon \
-		reshape2 MCMCpack VGAM
+		reshape2 MCMCpack VGAM stringdist
 
 	# <hot shit gesture>
 	rinstall SharpeR MarkowitzR sadists
@@ -290,7 +296,9 @@ rinstall() {
 	#sudo R CMD INSTALL /tmp/colorout*.tar.gz
 	#rm /tmp/colorout*.tar.gz
 	# this is in my drat now, so no worries:
-	rinstall colorout
+	#rinstall colorout
+	sudo R --slave -e 'download.file("http://www.lepem.ufc.br/jaa/vimr/colorout_1.1-1.tar.gz", destfile = "colorout_1.1-1.tar.gz"); \ 
+								install.packages("colorout_1.1-1.tar.gz", type = "source", repos = NULL)'
 
 	# get rstudio?
 	echo "go to http://www.rstudio.com/ide/download/desktop"
