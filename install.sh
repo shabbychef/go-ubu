@@ -10,6 +10,7 @@
 #  INSTALL_R
 #  INSTALL_KDE
 #  INSTALL_JULIA
+#  INSTALL_DOCKER
 #
 # then
 #
@@ -32,6 +33,7 @@ INSTALL_PYTHON=${INSTALL_PYTHON:-true}
 INSTALL_R=${INSTALL_R:-true}
 INSTALL_KDE=${INSTALL_KDE:-false}
 INSTALL_JULIA=${INSTALL_JULIA:-false}
+INSTALL_DOCKER=${INSTALL_DOCKER:-true}
 #UNFOLD
 
 # add some more repositories:#FOLDUP
@@ -139,7 +141,7 @@ if $INSTALL_PYTHON ; then
 	#sudo add-apt-repository ppa:jtaylor/ipython-dev
 	#sudo apt-get update
 	sudo apt-get install -y ipython python-dev
-	sudo apt-get upgrade ipython
+	sudo apt-get upgrade -y ipython
 	sudo apt-get install -y ipython-notebook
 	# check your install now:
 	ipython -V
@@ -167,6 +169,7 @@ if $INSTALL_PYTHON ; then
 	tar -C /tmp/numexpr -zxvf /tmp/numexpr.tgz 
 	cd /tmp/numexpr/numexpr-2.2.2 && python setup.py build && cd -
 	cd /tmp/numexpr/numexpr-2.2.2 && sudo python setup.py install && cd -
+	rm -rf /tmp/numexpr
 
 	# needed for pytables:
 	sudo apt-get install -y cython
@@ -180,8 +183,9 @@ if $INSTALL_PYTHON ; then
 
 	# to get bleeding edge sympy; bleah
 	mkdir -p ~/src
-	cd ~/src && git clone git://github.com/sympy/sympy.git
-	cd ~/src/sympy && sudo python setupegg.py develop
+	cd ~/src && git clone git://github.com/sympy/sympy.git && cd -
+	cd ~/src/sympy && sudo python setupegg.py develop && cd -
+	rm -rf ~/src/sympy
 	# ah, screw it, just get the ubuntu one.
 	#sudo apt-get install -y python-sympy
 fi
@@ -314,6 +318,13 @@ if $INSTALL_JULIA ; then
 	sudo apt-get install -y julia
 fi
 #UNFOLD
+
+if $INSTALL_DOCKER ; then
+	sudo apt-get install -y curl
+	curl -sSL https://get.docker.com/ | sh
+	sudo apt-get install -y python-pip
+	pip install docker-compose
+fi
 
 # cron#FOLDUP
 cat <<EOF | sudo tee /etc/cron.daily/packlist
