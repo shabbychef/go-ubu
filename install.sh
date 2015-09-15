@@ -284,7 +284,7 @@ rinstall() {
 		fracdiff forecast \
 		R.matlab \
 		survival clinfun saws rankhazard maxstat coxrobust \
-		colorspace plyr ggplot2 \
+		colorspace dplyr plyr ggplot2 \
 		ggHorizon \
 		reshape2 MCMCpack VGAM stringdist
 
@@ -301,8 +301,8 @@ rinstall() {
 	#rm /tmp/colorout*.tar.gz
 	# this is in my drat now, so no worries:
 	#rinstall colorout
-	sudo R --slave -e 'download.file("http://www.lepem.ufc.br/jaa/vimr/colorout_1.1-1.tar.gz", destfile = "colorout_1.1-1.tar.gz"); \ 
-								install.packages("colorout_1.1-1.tar.gz", type = "source", repos = NULL)'
+	sudo R --slave -e 'download.file("http://www.lepem.ufc.br/jaa/vimr/colorout_1.1-1.tar.gz", destfile = "colorout_1.1-1.tar.gz"); install.packages("colorout_1.1-1.tar.gz", type = "source", repos = NULL)'
+	# 2FIX: cleanup the tar when done...
 
 	# get rstudio?
 	echo "go to http://www.rstudio.com/ide/download/desktop"
