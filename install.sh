@@ -11,6 +11,7 @@
 #  INSTALL_KDE
 #  INSTALL_JULIA
 #  INSTALL_DOCKER
+#  INSTALL_TOR
 #
 # then
 #
@@ -33,7 +34,8 @@ INSTALL_PYTHON=${INSTALL_PYTHON:-true}
 INSTALL_R=${INSTALL_R:-true}
 INSTALL_KDE=${INSTALL_KDE:-false}
 INSTALL_JULIA=${INSTALL_JULIA:-false}
-INSTALL_DOCKER=${INSTALL_DOCKER:-false}
+INSTALL_DOCKER=${INSTALL_DOCKER:-true}
+INSTALL_TOR=${INSTALL_TOR:-true}
 #UNFOLD
 
 # add some more repositories:#FOLDUP
@@ -62,6 +64,15 @@ if $SETUP_REPOS ; then
 	if $INSTALL_JULIA ; then
 		sudo add-apt-repository -y ppa:staticfloat/julianightlies
 		sudo add-apt-repository -y ppa:staticfloat/julia-deps
+	fi
+	if $INSTALL_TOR ; then
+		cat <<APT_END | sudo tee -a /etc/apt/sources.list
+# need this for tor
+deb http://deb.torproject.org/torproject.org $MYUBUNTU main
+deb-src http://deb.torproject.org/torproject.org $MYUBUNTU main
+APT_END
+		gpg --keyserver keys.gnupg.net --recv 886DDD89
+		gpg --export A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89 | sudo apt-key add -
 	fi
 fi
 #UNFOLD
@@ -324,6 +335,10 @@ if $INSTALL_DOCKER ; then
 	curl -sSL https://get.docker.com/ | sh
 	sudo apt-get install -y python-pip
 	pip install docker-compose
+fi
+
+if $INSTALL_TOR ; then
+	sudo apt-get install -y tor deb.torproject.org-keyring
 fi
 
 # cron#FOLDUP
