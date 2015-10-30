@@ -58,6 +58,7 @@ if $SETUP_REPOS ; then
 		sudo cp /etc/apt/sources.list /tmp/
 		echo '# need this to get latest and greatest R' | sudo tee -a /etc/apt/sources.list
 		echo "deb http://cran.cnr.berkeley.edu/bin/linux/ubuntu $MYUBUNTU/" | sudo tee -a /etc/apt/sources.list
+		# cf. https://cran.cnr.berkeley.edu/bin/linux/ubuntu/
 		sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
 		sudo add-apt-repository -y ppa:marutter/c2d4u
 	fi
@@ -330,19 +331,23 @@ if $INSTALL_JULIA ; then
 fi
 #UNFOLD
 
+# DOCKER#FOLDUP
 if $INSTALL_DOCKER ; then
 	sudo apt-get install -y curl
 	curl -sSL https://get.docker.com/ | sh
 	sudo apt-get install -y python-pip
 	pip install docker-compose
 fi
+#UNFOLD
 
+# TOR#FOLDUP
 if $INSTALL_TOR ; then
 	sudo apt-get install -y tor deb.torproject.org-keyring
 fi
+#UNFOLD
 
 # cron#FOLDUP
-cat <<EOF | sudo tee /etc/cron.daily/packlist
+cat <<"EOF" | sudo tee /etc/cron.daily/packlist
 #!/bin/sh
 
 # put this in /etc/cron.daily to get a daily 'backup' of 
